@@ -1,0 +1,130 @@
+===========================================================================
+Auth2Cookie
+===========================================================================
+
+Introduction
+
+  * If you write web apps, you inevitably have to register and
+    authenticate users.
+
+  * You can use passwords, but that's a bit of a pain.
+
+  * You can offload authentication to the web server (Apache or IIS or
+    whatever), but configuring anything beyond passwords there is a bit
+    of a pain too.
+
+  * You want control over session duration (minutes?  months?)
+    and a way for users to sign out.
+
+  * You usually want to track authentication status in a cookie.
+
+  How about if I do all that for you?  That's what Auth2Cookie does.
+
+The basic concept:
+
+  * You write your web application.
+
+  * At the start of any given page, you make a single API function call.
+    I expose the API as a C function:
+
+    - From the point of view of your app, the API either returns the
+      signed in user ID or does not return at all.  Simple.
+
+    - If the user is not already signed on, the API call will redirect
+      the user to the auth2cookie URL (typically on the same server),
+      where the user will do something to authenticate, and then get a
+      cryptographically signed cookie dropped into her browser, and
+      then get redirected back to your app.
+
+    - To authenticate, the user may either type an ID and password, which
+      are validated against an Apache2-style .htpasswd file somewhere
+      on the filesystem, or (nicer) use Open ID to sign in with their
+      Google, Yahoo, LinkedIn, Facebook or whatever account.
+
+    - You can configure Open ID integration with whatever providers you
+      like - you just have to provide a few parameters for each provider
+      you want to add.  There is a sample configuration file with the
+      ones above.
+
+The function you call:
+
+  * As mentioned before, you call a C function to validate the user's
+    cookie and/or redirect the user to a URL where they can get a cookie.
+
+  * Most programming languages have a mechanism to call C function.
+    Or you could just write your app in C, like me!  :-)
+
+  * The function is actually not in auth2cookie!  Sorry.  It's in a related
+    package called idanlib.  You get that from:
+
+    https://github.com/00shoham/idanlib
+
+    You will want to download and build that library, and link your app
+    against utils.a in that library.
+
+  * You can see an example of how this works in test-cgi.c (in this
+    repository).
+
+    char* user = ExtractUserIDOrDieEx( cm_ui,
+                                       conf->userEnvVar,
+                                       conf->remoteAddrEnvVar,
+                                       conf->userAgentEnvVar,
+                                       MyCookieId( conf ),
+                                       conf->urlEnvVar,
+                                       conf->authServiceUrl,
+                                       conf->key,
+                                       conf->myCSS );
+
+   So what are all those arguments?  In order:
+
+   - If your app is interactive, you pass in cm_ui (it's part of an enum in http.h
+     in idanlib).  If it's more of an API calling the function, it specifies cm_api.
+     This just effects how error messages are returned.
+
+   - The next parameter specifies what environment variable the web server will
+     pass in as the currently signed in user ID, in case it authenticates the
+     user.  If you pass in NULL, it will use the default of "REMOTE_USER" which
+     is a standard for CGIs.  If not sure, just pass in a NULL.
+
+   - The next parameter specifies what environment variable the web server will
+     pass in the IP address or hostname of the user's web browser.  As above,
+     there is a default if you use NULL to accept the default of "REMOTE_ADDR".
+
+   - The next parameter specifies what environment variable the web server will
+     pass in the user agent string of the user's web browser.  As above,
+     there is a default if you use NULL to accept the default of "HTTP_USER_AGENT".
+
+   - The next parameter specifies the ID of the cookie in which you want to store
+     the user's identity (encrypted of course).  Perhaps your app name?  Just make
+     it an identifier - letters, digits and underscores only please.
+
+   - The next parameter specifies what environment variable the web server will
+     pass in the URL of your own app.  We will want to redirect the user back to
+     this in case he wasn't already signed in and we sent him off to a login page.
+     Pass in a NULL to accept the default of "REQUEST_URI".
+
+   - The next parameter specifies the URL for the auth2cookie login page.
+     For example, it might be "/cgi-bin/auth2cookie" - which assumes it's on the
+     same server as your app.
+
+   - The next parameter is an encryption key.  We use AES encryption and you should
+     generate 256 bits - which means 32 bytes of random data.  Just don't lose this
+     data - use the same 32 bytes every time.  Keep those 32 bytes secret!
+
+   - The final parameter is the URL for a CSS file that the login page should load.
+     This will ensure it uses the same colour scheme, etc. as your web app.
+
+   If this function returns at all, it will return an allocated string containing
+   either the e-mail address of the authenticated user or the local ID of the
+   same user, in case they signed in with a password and/or a map file mapped
+   the e-mail address to a local ID.  More on map files later in the configuration.
+
+  * Note that your call to ExtractUserIDOrDieEx() must be done before
+    your CGI starts to print page output, as in some cases it will print
+    an HTTP header to extend the cookie expiry time/date.  Basically if
+    there is a session cookie (i.e., the user has authenticated), and
+    the cookie will expire in the next 30 seconds, then the function
+    will write a replacement cookie to the relevant HTTP header
+    variable pushing the expiration date of the cookie into the future.
+    The session cookie's initial time-to-live will be honoured but with
+    "now" as the starting time/date.

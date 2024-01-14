@@ -1,0 +1,34 @@
+provider=google email=00shoham@gmail.com id=idan
+provider=linkedin email=00shoham@gmail.com id=idan
+provider=facebook email=shohami@yahoo.com id=idan
+provider=yahoo email=shohami@yahoo.com id=idan
+
+provider=facebook email=janexzeng@yahoo.com id=jane
+provider=google email=janexzeng69@gmail.com id=jane
+
+provider=facebook email=gshoham@yahoo.com id=gideon
+provider=google email=gshohamabc@gmail.com id=gideon
+
+provider=google email=antonshoham@gmail.com id=anton
+provider=google email=dinashoham@gmail.com id=dina
+provider=google email=franklinashoham@gmail.com id=keena
+
+provider=facebook email=rshoham@yahoo.com id=ran
+# weird that you can do this..
+provider=google email=rshoham@yahoo.com id=ran
+
+provider=google email=orianne.aviv@gmail.com id=ori
+provider=google email=denya.aviv@gmail.com id=denya
+provider=google email=lena.aviv3@gmail.com id=lena
+
+provider=facebook email=carrizosadaniel@yahoo.com id=daniel
+provider=google email=danielcarrizosa90@gmail.com id=daniel
+provider=google email=danielcarrizosa808@gmail.com id=daniel
+provider=google email=vblystone@gmail.com id=vern
+
+provider=google email=Xiaohua.zeng@gmail.com id=xiaohua
+
+provider=facebook email=eliaviv2001@yahoo.com id=eli
+provider=facebook email=karine_shoham@yahoo.com id=karine
+
+provider=google email=mypublicmbox@gmail.com id=alan

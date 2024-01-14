@@ -1,0 +1,16 @@
+===========================================================================
+Auth2Cookie - COMPATIBILITY
+===========================================================================
+
+Auth2Cookie was written on Ubuntu and should work with little or no
+change on any Linux system.  It should be reasonably easy to port to
+other platforms that expose POSIX-style APIs.
+
+Auth2Cookie was tested while hosted under the Apache2 web server.  It runs
+as a CGI so other web servers should "just work" - but configuration
+of CGIs on other web servers is left to the reader.
+
+Auth2Cookie exposes an HTML / CSS UI and should work with any web browser,
+including on PCs, phones and tablets.  There is no client-side active
+code (no JavaScript even).  The provided CSS works reasonably well on
+different form factors (from phone to PC).

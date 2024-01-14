@@ -1,0 +1,300 @@
+===========================================================================
+Auth2Cookie - CONFIGURATION
+===========================================================================
+
+Auth2Cookie is quite configurable.  You edit a text configuration file to adjust its
+behaviour.  The configuration is, by default, in /usr/local/etc/auth2cookie.ini.
+
+In this file, you generally have statements of the form:
+
+  VARIABLE=value
+
+You can define macros for later use.  For example:
+
+  HOSTNAME=acme.com
+  VARIABLE=something $HOSTNAME other
+
+You can split  the configuration into multiple files using statements like this:
+
+  #include "some-other-file.ini"
+
+You can also insert comments:
+
+  # This does not do anything, but may make the configuration more legible.
+
+Following are the parameters you can set in this file:
+
+--------------------------------------------------
+SESSION_COOKIE_ENCRYPTION_KEY
+
+  * This is the encryption key used to protect the cookie stored in user browsers.
+  * You should specify exactly 32 characters here, but can in practice specify fewer.
+  * The more entropy (randomness) you provide, the better.  Don't make the key
+    "Hello" or "Password123" or whatever.
+  * A program called keygen is provided to create random keys.  Just run:
+    ./keygen
+  * Characters in the password are either text (letters, digits, etc.) or hexadecimal,
+    encoded as \xf3 - meaning 0xf3 or decimal (15*16+3 = 243).
+
+  Example:
+
+  SESSION_COOKIE_ENCRYPTION_KEY=\xf7\xda\xb7\xc3\x1c(\xb6J\xafL\x0d(\xcel\x19\x94\xf2\x88\xc1\x0c5xy\xda\xbcm\x81\xa9\x83\x12\xd7z
+
+--------------------------------------------------
+URL_COOKIE
+
+  * The name of a cookie that will be placed in the user's web browser to track
+    what URL the user should be redirected back to, after being authenticated.
+    Note that this information is plain-text, as it is not secret (the user came
+    from there, after all), and is validated (the URL must be one of the approved
+    ones in the configuration file).
+
+    The default value is "IL-URL"
+
+  Example:
+
+  URL_COOKIE=my_URL_to_go_back_to
+
+
+--------------------------------------------------
+AUTHENTICATION_SERVICE_URL
+
+  This is the URL to the auth2cookie service itself.  The default value is
+  /cgi-bin/auth2cookie.  If you install to a different local path, you must
+  set this.
+
+  Example:
+
+  AUTHENTICATION_SERVICE_URL=/bin/auth2cookie
+
+--------------------------------------------------
+MY_CSS
+
+  * Specify a css file to use, to render the login page.  A default one is provided,
+    and will be installed to /data/www/auth2cookie/ui.css unless you change things around.
+
+  Example:
+
+  MY_CSS=/auth2cookie/ui.css
+
+--------------------------------------------------
+URL,LOCATION,USER,TIMEOUT,SESSION_COOKIE_NAME
+
+  * Specify a URL that is permitted to redirect users to auth2cookie for
+    authentication, and to which auth2cookie will, once authenticated, send users
+    back to.
+
+  * The URL parameter just names the app.
+
+  * The LOCATION parameter specifies where the app lives.
+
+  * The USER parameter indicates who is allowed to sign into the app.
+    You can specify this parameter multiple times to name multiple
+    eligible users.  You can also specify wildcards for the USER, such as
+    ".*" meaning (any sequence of any character).
+
+  * The TIMEOUT parameter is the cookie lifetime.  When there is no activity by
+    an authenticated user for this many seconds, the cookie will expire.
+
+  * The SESSION_COOKIE_NAME parameter names the cookie where authentication status
+    will be stored in the user's browser.  There is a default value of "IL-SESSION-STATE"
+    so you do not need to specify this, but if a single instance of auth2cookie serves
+    multiple apps, each with its own TIMEOUT parameter, then each app should
+    get its own SESSION_COOKIE_NAME.
+
+  Example:
+
+  URL=Sample application
+  LOCATION=/cgi-bin/test-cgi
+  # Anyone who can authenticate can use this app.
+  USER=.*
+  # 60 seconds/minute * 60 minutes/hour * 24 hours/day * 30 days = a month-long login..
+  TIMEOUT=2592000
+  SESSION_COOKIE_NAME=LONG-LIVED-SESSION
+
+--------------------------------------------------
+HTPASSWD
+
+  * If you wish to support local password authentication, then user IDs and passwords
+    will be validated against a .htpasswd-style file (Apache2 format).
+
+  * This parameter locates the password file.
+
+  * If you don't provide a value, the default is /etc/apache2/.htpasswd
+
+  * To disable password validation, set this to the keyword NULL.
+
+  Example:
+
+  HTPASSWD=/data/etc/.htpasswd
+  or
+  HTPASSWD=NULL
+
+--------------------------------------------------
+LOCK
+
+  * The full filename of a lock file, that is used to prevent two or more
+    instances of auth2cookie or its components from interacting with the htpasswd
+    file simultaneously.
+
+    /var/log/auth2cookie/auth2cookie.lock
+
+    Example:
+
+    LOCK=/var/tmp/auth2cookie.lock
+
+--------------------------------------------------
+HTML_FOLDER
+
+  * Where static web (html), image (png) and stylesheet (css) files go, on the
+    filesystem.
+
+  * Make sure this folder exists.  It should be readable by the CGI auth2cookie
+    program but need (and for security reasons should probably not be) writable
+    by the app / the user under which the web server runs it.
+
+  Example:
+
+  HTML_FOLDER=/data/www
+
+--------------------------------------------------
+SECRETS_DIR
+
+  * Where the app will store small files used in the context of Open ID
+    authentication.
+
+  * This folder needs to exist and must be writable by the user in whose security
+    context the auth2cookie CGI runs.
+
+  Example:
+
+  SECRETS_DIR=/var/log/auth2cookie
+
+--------------------------------------------------
+ID_MAP_FILE
+
+  * A text file which maps IDs received from Open ID providers, such as Google or
+    Facebook, to local IDs.
+
+  * This parameter is optional.  If you don't provide it, then the ID returned to
+    apps that call the ExtractUserIDOrDieEx() API function will receive the e-mail
+    address returned via OpenID.
+
+  * The file is a text file which contains blank lines or entries in the form:
+
+    provider=NAME email=A@B.C id=LOCALID
+
+  * If an OpenID authentication works and returns an e-mail address matching A@B.C
+    in this file, then the app calling ExtractUserIDOrDieEx() will receive LOCALID
+    rather than A@B.C.  If there is no match, the app will receive A@B.C.
+
+  Example:
+    
+  ID_MAP_FILE=/usr/local/etc/oauth-id-map.txt
+
+--------------------------------------------------
+REFERER_ENV_VARIABLE
+
+  If your web server does not provide the address of the previous web page
+  the user's web browser visited (referring URL) in the environment variable
+  HTTP_REFERER, then you can specify an alternate environment variable to use:
+
+  Example:
+
+  REFERER_ENV_VARIABLE
+
+--------------------------------------------------
+REMOTE_ADDR_ENV_VARIABLE
+
+  If your web server does not provide the address of the address of the web
+  browser in the environment variable REMOTE_ADDR, then you can specify an
+  alternate environment variable to use:
+
+  Example:
+
+  REMOTE_ADDR_ENV_VARIABLE=WEIRD_WEB_SERVER_REMOTE_ADDR_ALTERNATIVE
+
+--------------------------------------------------
+USER_AGENT_ENV_VARIABLE
+
+  If your web server does not provide the user agent string from the user's
+  web browser in the environment variable HTTP_USER_AGENT, then you can specify an
+  alternate environment variable to use:
+
+  Example:
+
+  USER_AGENT_ENV_VARIABLE=WEIRD_WEB_SERVER_HTTP_USER_AGENT_ALTERNATIVE
+
+--------------------------------------------------
+USER_ENV_VARIABLE
+
+  If your web server does not provide the identity of the already
+  authenticated user (should there be one) in the environment variable
+  REMOTE_USER, then you can specify an alternate environment variable
+  to use:
+
+  Example:
+
+  USER_ENV_VARIABLE=WEIRD_WEB_SERVER_REMOTE_USER_ALTERNATIVE
+
+--------------------------------------------------
+URL_ENV_VARIABLE
+
+  If your web server does not provide the URL that the incoming browser
+  used to reach the currently executing CGI in the standard environment
+  variable REQUEST_URI, you can specify an alternate environment variable
+  name here:
+
+  Example:
+
+  URL_ENV_VARIABLE=WEIRD_WEB_SERVER_REQUEST_URI_ALTERNATIVE
+
+
+--------------------------------------------------
+OAUTH providers
+
+  * Each Open ID identity provider is represented by a sequence of parameters, as
+    follows:
+
+    OAUTH_PROVIDER=<name>
+    OAUTH_LOGO_URL=<URL to an image file>
+    OAUTH_AUTH_URL=<URL to the provider's authentication request page>
+    OAUTH_TOKEN_URL=<URL to the provider's token request endpoint>
+    OAUTH_CLIENT_ID=<The client ID string you got by registering with the provider>
+    OAUTH_CLIENT_SECRET=<The client secret string you got by registering with the provider>
+    OAUTH_SCOPE=<The data your app is authorized to request from the provider>
+    OAUTH_RECEIVER_URL=<The URL to oauth-receive, which is a part of auth2cookie>
+
+  For example, to sign in with Google credentials, you enter:
+
+  OAUTH_PROVIDER=Google
+  OAUTH_LOGO_URL=/auth2cookie/sign-in-with-google.png
+  OAUTH_AUTH_URL=https://accounts.google.com/o/oauth2/v2/auth
+  OAUTH_TOKEN_URL=https://oauth2.googleapis.com/token
+  OAUTH_CLIENT_ID=<use your own client ID here>
+  OAUTH_CLIENT_SECRET=<use your own client secret here>
+  OAUTH_SCOPE=openid email profile
+  OAUTH_RECEIVER_URL=https://<your server URL>/cgi-bin/oauth-receive
+
+  You can specify multiple OAUTH provider sequences, one per provider.  They
+  will all be rendered in the auth2cookie login page, in reverse order to their
+  appearance in the configuration file.
+
+  Note that, in some cases (cough ... Facebook ... cough), the authentication
+  token received from an Open ID service may not contain the user's e-mail address,
+  but it might be possible to lookup the e-mail from the opaque ID that was provided.
+  When this is the case, you can specify OAUTH_LOOKUP_URL.
+
+  Example:
+
+  OAUTH_LOOKUP_URL=https://graph.facebook.com/me?fields=email,name,picture&access_token=
+
+  Users might take their sweet time interacting with an authentication service,
+  or may simply give up and not authenticate.  In these cases, a secrets file
+  will persist on the filesystem where auth2cookie runs indefinitely.  To avoid
+  this situation, secrets files expire - and are automatically scrubbed.  There
+  is a default timeout for these secrets files of 20 seconds.  To override this,
+  specify an alternative like this:
+
+  OAUTH_TOKEN_TIMEOUT=60
+

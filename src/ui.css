@@ -1,0 +1,172 @@
+*
+  {
+  margin: 0px;
+  padding:0;
+  color:#000000;
+  }
+
+html
+  {
+  background-color:#ffffff;
+  }
+
+body
+  {
+  font: 14pt/18pt Verdana, Arial, Helvetica, sans-serif;
+  margin: 10px 10px 10px 30px;
+  line-height:100%;
+  }
+
+table
+  {
+  border: none 0px;
+  }
+
+table.border
+  {
+  color: #000000;
+  border: 2px;
+  padding: 10px;
+  }
+
+p
+  {
+  margin: 0 0 4px;
+  line-height: 1.35;
+  }
+
+em
+  {
+  font-style:italic;
+  }
+
+h1
+  {
+  color: #08427c;;
+  margin: 10px 0 20px 0;
+  padding: 0 0 3px;
+  border-bottom: 1px solid #cdcdcd;
+  font: 20pt Verdana, Arial, Helvetica, sans-serif;
+  }
+
+h2
+  {
+  color: #08427c;;
+  margin: 5px 0;
+  padding: 0 0 3px;
+  border: 0;
+  font: 16pt Verdana, Arial, Helvetica, sans-serif;
+  }
+h3
+
+  {
+  color: #08427c;;
+  margin:8px 0;
+  padding: 0 0 2px;
+  font: 14pt Verdana, Arial, Helvetica, sans-serif;
+  }
+
+h4
+  {
+  color: #08427c;;
+  font: bold 12pt Verdana, Arial, Helvetica, sans-serif;
+  background-color: transparent;
+  margin:2px 0;
+  }
+
+
+ol
+  {
+  color: #000000;
+  font: 8pt/12pt Verdana, Arial, Helvetica, sans-serif;
+  background-color: transparent;
+  margin:15px 0 5px 25px;
+  }
+
+ol li
+  {
+   margin-bottom: 4px;
+  }
+
+ol li ol
+  {
+  list-style-type:lower-alpha;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  }
+
+ol li ul
+  {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  }
+
+ol li ol li ol
+  {
+  list-style-type:lower-roman;
+  }
+
+ol li ol li ol li ol
+  {
+  list-style-type:upper-alpha;
+  }
+
+img
+  {
+  border:none;
+  }
+
+#refresh
+  {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  max-width: 100px;
+  border: 1px solid #cdcdcd;
+  background-color:#99ff99;
+  padding: 10px 10px 10px 10px;
+  font: bold 12pt Verdana, Arial, Helvetica, sans-serif;
+  }
+
+#error
+  {
+  color: #ff6666;
+  font: bold 12pt Verdana, Arial, Helvetica, sans-serif;
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  display: none;
+  background-color:#ffffee;
+  padding: 10px;
+  border: 3px solid #333333;
+  }
+
+span.clear
+  {
+  clear: right;
+  display: block;
+  }
+
+div.break
+  {
+  clear: both;
+  }
+
+.login-tr
+  {
+  }
+
+.login-td
+  {
+  padding: 5px 5px 5px 5px;
+  }
+
+input.submit-button
+  {
+  font: bold 14pt Verdana, Arial, Helvetica, sans-serif;
+  background-color:#2b93ad;
+  color: #ffffff;
+  border: 3px solid #e4f2f2;
+  border-radius: 10px;
+  padding: 5px 20px 5px 20px;
+  }

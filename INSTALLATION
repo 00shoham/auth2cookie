@@ -1,0 +1,77 @@
+===========================================================================
+Auth2Cookie - INSTALLATION
+===========================================================================
+
+First, download and build idanlib from https://github.com/00shoham/idanlib
+Nothing will work until that's ready.
+
+Next, build and install the package by opening a shell prompt, using 'cd'
+to enter the src/ folder and typing:
+
+  make
+
+If that didn't work, you may not have a compiler or another pre-requisite.
+Figure out your dependencies.
+
+You have to configure Apache2 to enable CGIs:
+
+  sudo bash
+  cd /etc/apache2/mods-enabled
+  ln -s /etc/apache2/mods-available/cgi.load .
+
+A minimal configuration in /etc/apache2/sites-enabled looks like this:
+
+  <VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /data/www/
+    ScriptAlias /cgi-bin/ /data/cgi-bin/
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    <Directory "/data/cgi-bin">
+      AllowOverride None
+      Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+      Require all granted
+    </Directory>
+    <Directory "/data/www">
+      AllowOverride None
+      Options -MultiViews +SymLinksIfOwnerMatch
+      Require all granted
+    </Directory>
+  </VirtualHost>
+
+Note that in the above example, CGI programs will go in /data/cgi-bin
+and static web content will go in /data/www.  Adjust these paths to suit
+your needs.  You will need to restart Apache2 to load your configuration:
+
+  sudo bash
+  /etc/init.d/apache2 stop
+  /etc/init.d/apache2 start
+  tail /var/log/syslog
+
+  (see if it worked)
+
+  Open a web browser to http://localhost/ or whatever to see if you can see anything.
+
+  Don't bother testing auth2cookie until your web server works....
+
+Once you have Apache2 configured:
+
+  cd auth2cookie/src
+
+  << EDIT INSTALL-WEB.SH TO REFLECT YOUR LOCAL DIRECTORIES AND URLS >>
+
+  ./install-web.sh
+
+  (enter your password to run some commands as root, as required).
+
+You should now be able to browse to something like:
+
+  http://localhost/cgi-bin/auth2cookie
+
+Don't worry if it complains about missing parameters - getting any response at
+all is all you want at this stage.  You want an app to redirect a user to
+auth2cookie via a call to ExtractUserIDOrDieEx() to use it properly.  Try:
+
+  http://localhost/cgi-bin/test-cgi
+
+That's it - it is installed.
